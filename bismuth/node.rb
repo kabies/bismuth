@@ -90,6 +90,7 @@ class Bi::Node < SceneGraph::Node
     @event_handler = nil
 
     # color and alpha
+    @blendmode = Bi::BLENDMODE_BLEND
     @r = @g = @b = 0
     @a = 0
   end
@@ -106,7 +107,7 @@ class Bi::Node < SceneGraph::Node
     return if @a == 0
     @__dst_rect__ ||= SDL2::Rect.new(0,0,1,1)
     @__dst_rect__.w, @__dst_rect__.h = self.w, self.h
-    renderer.draw_blend_mode = @blendmode || SDL2::Video::SDL_BLENDMODE_BLEND
+    renderer.draw_blend_mode = @blendmode
     renderer.set_draw_color( @r, @g, @b, @a )
     renderer.fill_rect @__dst_rect__
   end
