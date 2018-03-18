@@ -17,12 +17,12 @@ module Bi::Action
     Bi::Action::ScaleTo.new duration,x,y
   end
 
-  def self.rotate_by(to,duration)
-    Bi::Action::RotateBy.new to, duration
+  def self.rotate_by(duration,to)
+    Bi::Action::RotateBy.new duration,to
   end
 
-  def self.rotate_to(to,duration)
-    Bi::Action::RotateTo.new to, duration
+  def self.rotate_to(duration,to)
+    Bi::Action::RotateTo.new duration,to
   end
 
   def self.move_to(duration,x,y)
@@ -190,7 +190,7 @@ module Bi::Action
 
   class RotateBy < FiniteTimeAction
 
-    def initialize(to,duration)
+    def initialize(duration,to)
       super(duration)
       @to = to
     end
@@ -212,7 +212,7 @@ module Bi::Action
 
   class RotateTo < FiniteTimeAction
 
-    def initialize(to,duration)
+    def initialize(duration,to)
       super(duration)
       @to = to
     end
