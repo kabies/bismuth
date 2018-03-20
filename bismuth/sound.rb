@@ -35,6 +35,14 @@ class Bi::Sound
     @channel = -1
   end
 
+  def self.stop_all_sounds
+    SDL2::Mixer::halt_channel(-1)
+  end
+
+  def playing?
+    SDL2::Mixer::channel_playing?(@channel)
+  end
+
   def play(opts={})
     if opts[:repeat] or opts[:loop]
       loop_count = -1
