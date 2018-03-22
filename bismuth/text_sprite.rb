@@ -2,63 +2,25 @@
 class Bi::TextSprite < Bi::Node
   include Bi::TextureDrawer
 
-  attr_reader :text
-  attr_reader :font
-
-  def self.default_font=(font)
-    @default_font = font
+  class << self
+    attr_accessor :default_font, :default_color, :default_size
   end
+  @default_font = nil
+  @default_color = [0,0,0,0xFF]
+  @default_size = 18
 
-  def self.default_font
-    @default_font
-  end
-
-  def self.default_color=(color)
-    @default_color = color
-  end
-
-  def self.default_color
-    unless @default_color
-      @default_color = [0xFF,0xFF,0xFF]
-    end
-    @default_color
-  end
-
-  # "font" argument:
-  #   font: SDL2::TTF::Font
-  #   path: TTF file path
-  #   size: Font Size
+  # opts:
+  #   font: TTF file name
+  #   size: font size
   #   color: [r,g,b,a]
-  #
-  # OK: {font:TTF_FONT} # size included SDL2::TTF::Font.
-  # OK: {path:FONT_PATH,size:18} # use default color
-  # NG: {path:FONT_PATH} # size required.
-  #
-  def initialize(text, font={})
+  def initialize(text, opts={})
     super()
-
-    if font[:font]
-      @font = font[:font]
-    else
-      @path = font[:path]
-      @size = font[:size]
-    end
-
-    unless @font and @path
-      @path = Bi::TextSprite.default_font
-    end
-
-    @a = 0xFF
-    if font[:color]
-      @r,@g,@b = font[:color]
-    else
-      @r,@g,@b = Bi::TextSprite.default_color
-    end
-
-    unless @font
-      @font = Bi::FontCache.load @path, @size
-    end
-
+    @font = opts[:font] || Bi::TextSprite.default_font
+    @size = opts[:size] || Bi::TextSprite.default_size
+    @r,@g,@b,@a = opts[:color] || Bi::TextSprite.default_color
+    @a = 0xFF unless @a
+    @font_path = Bi::System.asset @font
+    @font_file = Bi::FontCache.load @font_path, @size
     set_text(text)
   end
 
@@ -71,7 +33,7 @@ class Bi::TextSprite < Bi::Node
     begin
       @surface.free if @surface
       # opaque white
-      @surface = @font.render_UTF8_blended(@text, 0xFF,0xFF,0xFF,0xFF )
+      @surface = @font_file.render_UTF8_blended(@text, 0xFF,0xFF,0xFF,0xFF )
     rescue => e
       @surface = nil
       self.w = 0
