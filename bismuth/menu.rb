@@ -1,9 +1,9 @@
 
 class Bi::MenuItem < Bi::TextSprite
 
-  def initialize(text, menu={})
-    super(text,menu)
-    @callback = menu[:callback]
+  def initialize(text, opts={}, &callback)
+    super(text,opts)
+    @callback = callback
   end
 
   def callback
@@ -17,9 +17,6 @@ class Bi::Menu < Bi::Node
     @a = 0
     @index = 0
     @items = items
-    # @font_size = font_size
-    # @font_color = font_color
-    # @font = SDL2::TTF::Font.new "migu-2m-regular.ttf", font_size
     @event_handler = Proc.new {|ev| next self.event_handle(ev) }
 
     add_event_callback(:BUTTON_UP){|value|
