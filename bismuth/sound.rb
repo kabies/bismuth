@@ -1,5 +1,32 @@
+class Bi::Music
+  @@music_cache = {}
+  @@playing = nil
+
+  def self.play(filename)
+    unless @@music_cache[filename]
+      @@music_cache[filename] = SDL2::Mixer::Music.new Bi::System.asset(filename)
+    end
+    return if @@playing == filename
+    @@playing = filename
+    music = @@music_cache[filename]
+    if SDL2::Mixer::music_playing?
+      SDL2::Mixer::halt_music
+    end
+    music.play -1
+  end
+
+  def self.stop
+    @@playing = nil
+    SDL2::Mixer::halt_music
+  end
+
+  def self.bgm_playing?
+    SDL2::Mixer::music_playing?
+  end
+end
 
 class Bi::Sound
+  @@sound_cache = {}
 
   def self.init
     SDL2::Mixer::init 0
@@ -23,15 +50,16 @@ class Bi::Sound
 
   def initialize(filename)
     @filename = filename
-
-    if Bi::Archive.instance.include? filename
-      file_start = Bi::Archive.instance.at filename
-      file_size = Bi::Archive.instance.size filename
-      @sound = SDL2::Mixer::Chunk::load_partial Bi::Archive.instance.archive_name, file_start, file_size
-    else
-      @sound = SDL2::Mixer::Chunk.new Bi::System.asset(filename)
+    @sound = @@sound_cache[filename]
+    unless @sound
+      if Bi::Archive.instance.include? filename
+        file_start = Bi::Archive.instance.at filename
+        file_size = Bi::Archive.instance.size filename
+        @sound = SDL2::Mixer::Chunk::load_partial Bi::Archive.instance.archive_name, file_start, file_size
+      else
+        @sound = SDL2::Mixer::Chunk.new Bi::System.asset(filename)
+      end
     end
-
     @channel = -1
   end
 
