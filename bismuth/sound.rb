@@ -2,6 +2,10 @@ class Bi::Music
   @@music_cache = {}
   @@playing = nil
 
+  def self.decoders
+    SDL2::Mixer.get_num_music_decoder.times.map{|i| SDL2::Mixer.get_music_decoder(i) }
+  end
+
   def self.play(filename)
     unless @@music_cache[filename]
       @@music_cache[filename] = SDL2::Mixer::Music.new Bi::System.asset(filename)
@@ -42,10 +46,8 @@ class Bi::Sound
     SDL2::Audio.current_driver
   end
 
-  def self.info
-    chunk_decoders = SDL2::Mixer.get_num_chuck_decoder.times.map{|i| SDL2::Mixer.get_chunk_decoder(i) }
-    music_decoders = SDL2::Mixer.get_num_music_decoder.times.map{|i| SDL2::Mixer.get_music_decoder(i) }
-    p [:chunk_decoders, chunk_decoders, :music_decoders, music_decoders]
+  def self.decoders
+    SDL2::Mixer.get_num_chuck_decoder.times.map{|i| SDL2::Mixer.get_chunk_decoder(i) }
   end
 
   def initialize(filename)
