@@ -69,9 +69,8 @@ class Bi::RunLoop
   end
 
   def run_action(action,target)
-    # p [__method__,action.class,target.class]
     @actions << [action, target]
-    action.start target
+    action.start Time.now, target
   end
 
   def remove_action(action,target)
@@ -156,10 +155,14 @@ class Bi::RunLoop
       #
       # Actions
       #
+      now = Time.now
+      actions_will_remove = []
       @actions.each{|action,target|
-        action.update
+        unless action.update now
+          actions_will_remove << [action,action.node]
+        end
       }
-
+      @actions -= actions_will_remove
 
       end_at = Time.now
 

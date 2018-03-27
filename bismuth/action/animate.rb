@@ -27,13 +27,7 @@ class Bi::AnimationFrame
   end
 end
 
-module Bi::Action
-  def self.animation(frames,interval)
-    Bi::Action::Animation.new(frames,interval)
-  end
-end
-
-class Bi::Action::Animate < Bi::Action::FiniteTimeAction
+class Bi::Action::Animate < Bi::Action::Base
 
   attr_accessor :callback, :name
   attr_reader :interval, :frames
@@ -43,6 +37,7 @@ class Bi::Action::Animate < Bi::Action::FiniteTimeAction
     if i != @current_frame_index
       set_frame i
     end
+    super rate
   end
 
   def initialize(frames,interval)
@@ -57,8 +52,8 @@ class Bi::Action::Animate < Bi::Action::FiniteTimeAction
     }
   end
 
-  def start(node)
-    super(node)
+  def start(start_at,node)
+    super(start_at,node)
     set_frame(0)
   end
 
