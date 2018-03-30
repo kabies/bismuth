@@ -1,18 +1,29 @@
 
 class Bi::System
-  @@fps
-  @@assets_dir
+  @fps
+  @debug
+
+  class << self
+    attr :fps, :debug
+  end
 
   # opts:
   #   assets: asset path
   #   fps: FPS
   #   font: default font
   #   audio_driver: audio driver
+  #   debug: debug mode if true
   def self.init(opts={})
-    @@asset_paths = []
+    @debug = !!(opts[:debug])
+    if self.debug
+      puts "debug mode enabled."
+    end
 
+    @@asset_paths = []
     @@asset_paths.push opts[:assets] || 'assets'
-    @@fps = opts[:fps] ? opts[:fps] : 30
+
+    @fps = opts[:fps] ? opts[:fps] : 30
+
     if opts[:font]
       Bi::TextSprite.default_font = opts[:font]
     end
@@ -45,10 +56,6 @@ class Bi::System
 
   def self.add_asset_path(path)
     @@asset_paths.unshift path
-  end
-
-  def self.fps
-    @@fps
   end
 
 end

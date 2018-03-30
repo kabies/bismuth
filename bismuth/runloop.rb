@@ -193,10 +193,17 @@ class Bi::RunLoop
       elapse_msec = (end_at-start_at)*1000
       wait_msec = [WAIT_PER_FRAME_MAX - elapse_msec, 1].max
 
-      if Time.now - previous_update > 1
+      now = Time.now
+      if now - previous_update > 1
         @fps = fps_count
-        # Logger.debug "#{fps_count}FPS E:#{"%.2f" % elapse_msec}ms W:#{"%.2f" % wait_msec}ms"
-        previous_update = Time.now
+        if Bi::System.debug
+          elapse_str = "%.2f" % elapse_msec
+          wait_str = "%.2f" % wait_msec
+          node_count = Bi::Window.renderer.draw_count
+          action_count = @node_actions.values.inject(0){|sum,actions| sum+actions.size }
+          puts "[#{now}] #{fps_count}FPS / Work #{elapse_str}ms / Wait #{wait_str}ms / #{node_count}nodes / #{action_count}actions"
+        end
+        previous_update = now
         fps_count = 0
       end
 
