@@ -53,7 +53,7 @@ class Bi::Action::Sequence
     end
 
     if rate >= 1.0
-      @callback.call if @callback
+      @callback.call @node if @callback
       return true
     end
     return false
