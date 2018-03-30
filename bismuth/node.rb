@@ -210,19 +210,19 @@ class Bi::Node < SceneGraph::Node
   #
 
   def run_action(action)
-    Bi::RunLoop.run_action action, self
+    Bi::RunLoop.instance.run_action action, self
   end
 
   def remove_action(action)
-    Bi::RunLoop.remove_action action, self
+    Bi::RunLoop.instance.remove_action action, self
   end
 
   def remove_all_action
-    Bi::RunLoop.remove_all_action self
+    Bi::RunLoop.instance.remove_all_action self
   end
 
   def action_running?
-    Bi::RunLoop.action_running? self
+    Bi::RunLoop.instance.action_running? self
   end
 
   # Timer
