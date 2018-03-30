@@ -44,20 +44,66 @@ class Bi::RunLoop
     self.instance.scene = scene
   end
 
-  def self.run_action(action,target)
-    self.instance.run_action action, target
-  end
-
-  def self.remove_action(action,target)
-    self.instance.remove_action action, target
-  end
-
-  def self.remove_all_action(target)
-    self.instance.remove_all_action target
-  end
-
   def self.global_z_node(node,z)
     self.instance.global_z_node node, z
+  end
+
+  #
+  #
+  #
+
+  def initialize()
+    @fps = 0
+    @event_handlers = []
+    @timers = []
+    @gamepad = Bi::Gamepad.new
+    @callbacks = {}
+    @node_actions = {}
+    @global_z_nodes = []
+  end
+
+  #
+  # actions
+  #
+
+  def run_action(action,node)
+    @node_actions[node] ||= []
+    @node_actions[node] << action
+    action.start Time.now, node
+  end
+
+  def remove_action(action,node)
+    if @node_actions[node]
+      i = @node_actions[node].index(action)
+      @node_actions[node][i] = nil if i
+    end
+  end
+
+  def remove_all_action(node)
+    if @node_actions[node]
+      @node_actions[node].fill{nil}
+    end
+  end
+
+  def action_running?(node)
+    ! @node_actions[node].empty?
+  end
+
+  def update_actions
+    now = Time.now
+    @node_actions.each{|node,actions|
+      actions.size.times{|i|
+        next unless actions[i]
+        unless actions[i].update now
+          # remove done action
+          actions[i] = nil
+        end
+      }
+    }
+    @node_actions.delete_if{|node,actions|
+      actions.compact!
+      actions.empty?
+    }
   end
 
   #
@@ -68,35 +114,30 @@ class Bi::RunLoop
     @global_z_nodes << node
   end
 
-  def run_action(action,target)
-    @actions << [action, target]
-    action.start Time.now, target
-  end
-
-  def remove_action(action,target)
-    @actions.delete [action, target]
-  end
-
-  def remove_all_action(target)
-    @actions.delete_if{|i| i.last == target }
-  end
-
   def set_runnning(running)
     RunLoop::get_loop.running = running
   end
 
-  def initialize()
-    @fps = 0
-    @event_handlers = []
-    @timers = []
-    @gamepad = Bi::Gamepad.new
-    @callbacks = {}
-    @actions = []
-    @global_z_nodes = []
-  end
-
   def add_event_handler(handler)
     @event_handlers << handler
+  end
+
+  def rendering
+    Bi::Window.renderer.set_draw_color( 0,0,0,0 )
+    Bi::Window.renderer.clear
+
+    if @scene
+      @scene.update Bi::Window.renderer
+
+      # global z nodes
+      @global_z_nodes.each{|node|
+        node.update_with_global_z Bi::Window.renderer
+      }
+    end
+
+    Bi::Window.renderer.present
+
+    @global_z_nodes.clear
   end
 
   def run_with_scene(scene)
@@ -110,22 +151,6 @@ class Bi::RunLoop
 
     while @running
       start_at = Time.now
-
-      Bi::Window.renderer.set_draw_color( 0,0,0,0 )
-      Bi::Window.renderer.clear
-
-      if @scene
-        @scene.update Bi::Window.renderer
-
-        # global z nodes
-        @global_z_nodes.each{|node|
-          node.update_with_global_z Bi::Window.renderer
-        }
-      end
-
-      Bi::Window.renderer.present
-
-      @global_z_nodes.clear
 
       #
       # Event Handler
@@ -155,14 +180,12 @@ class Bi::RunLoop
       #
       # Actions
       #
-      now = Time.now
-      actions_will_remove = []
-      @actions.each{|action,target|
-        unless action.update now
-          actions_will_remove << [action,action.node]
-        end
-      }
-      @actions -= actions_will_remove
+      self.update_actions
+
+      #
+      # Rendering
+      #
+      self.rendering
 
       end_at = Time.now
 

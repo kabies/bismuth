@@ -83,7 +83,6 @@ class Bi::Node < SceneGraph::Node
     self.anchor_y = 0
 
     @children = []
-    @actions = []
     @visible = true
 
     @event_callbacks = {}
@@ -131,27 +130,34 @@ class Bi::Node < SceneGraph::Node
   # Scene Graph
   #
 
+  def add_child(node)
+    raise "#{node} has parent #{node.parent}" if node.parent
+    node.parent = self
+    @children << node
+  end
+
   def remove_from_parent
     @parent.remove_child self if @parent
   end
 
   def remove_child(node)
-    if node.parent == self
-      node.parent = nil
-      @children.delete node
-    end
+    raise "#{node} is not child of #{self}" unless node.parent == self
+    node.parent = nil
+    @children.delete node
+    node.cleanup
   end
 
-  def remove_all_children()
-    @children.each{|c|
-      c.parent = nil
+  def cleanup
+    self.remove_all_action
+    @children.each{|c| c.cleanup }
+  end
+
+  def remove_all_children
+    @children.each{|node|
+      node.parent = nil
+      node.cleanup
     }
     @children.clear
-  end
-
-  def add_child(node)
-    node.parent = self
-    @children << node
   end
 
   #
@@ -207,9 +213,6 @@ class Bi::Node < SceneGraph::Node
     Bi::RunLoop.run_action action, self
   end
 
-  def add_action(action)
-  end
-
   def remove_action(action)
     Bi::RunLoop.remove_action action, self
   end
@@ -218,8 +221,8 @@ class Bi::Node < SceneGraph::Node
     Bi::RunLoop.remove_all_action self
   end
 
-  def is_action_runnning?
-    @actions.size > 0
+  def action_running?
+    Bi::RunLoop.action_running? self
   end
 
   # Timer
