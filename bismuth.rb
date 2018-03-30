@@ -45,5 +45,5 @@ require 'bismuth/keyboard'
 require 'bismuth/mouse'
 require 'bismuth/sound'
 require 'bismuth/rainbow'
-require 'bismuth/animation'
+
 require 'bismuth/animation_yaml_reader'
