@@ -53,4 +53,8 @@ class Bi::Window
     @@renderer.draw_blend_mode = SDL2::Video::SDL_BLENDMODE_BLEND
     @@window
   end
+
+  def self.screenshot(path)
+    @@renderer.screenshot path
+  end
 end
