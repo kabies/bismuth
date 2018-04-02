@@ -6,7 +6,7 @@ class Bi::FontCache
     if @@cache[font_id]
       return @@cache[font_id]
     end
-    font = SDL2::TTF::Font.new fontpath, fontsize
+    font = Bi::System.read_ttf fontpath, fontsize
     @@cache[font_id] = font
     font
   end

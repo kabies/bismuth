@@ -6,7 +6,7 @@ class Bi::TextSprite < Bi::Node
     attr_accessor :default_font, :default_color, :default_size
   end
   @default_font = nil
-  @default_color = [0,0,0,0xFF]
+  @default_color = [0xFF,0xFF,0xFF,0xFF]
   @default_size = 18
 
   # opts:
@@ -20,7 +20,7 @@ class Bi::TextSprite < Bi::Node
     @r,@g,@b,@a = opts[:color] || Bi::TextSprite.default_color
     @a = 0xFF unless @a
     @font_path = Bi::System.asset @font
-    @font_file = Bi::FontCache.load @font_path, @size
+    @font_file = Bi::FontCache.load @font, @size
     set_text(text)
   end
 

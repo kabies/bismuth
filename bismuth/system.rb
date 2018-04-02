@@ -9,11 +9,13 @@ class Bi::System
 
   # opts:
   #   assets: asset path
+  #   archive: archive file path
   #   fps: FPS
   #   font: default font
   #   audio_driver: audio driver
   #   debug: debug mode if true
   def self.init(opts={})
+
     @debug = !!(opts[:debug])
     if self.debug
       puts "debug mode enabled."
@@ -21,6 +23,12 @@ class Bi::System
 
     @@asset_paths = []
     @@asset_paths.push opts[:assets] || 'assets'
+
+    @archive = Bi::Archive.new
+    if opts[:archive]
+      @archive.load opts[:archive]
+      p [opts[:archive], @archive.files] if self.debug
+    end
 
     @fps = opts[:fps] ? opts[:fps] : 30
 
@@ -48,6 +56,7 @@ class Bi::System
   def self.asset(name)
     @@asset_paths.each{|path|
       f = File.join(path,name)
+      return f if @archive.include? f
       return f if File.exist?(f)
     }
     # asset not found...
@@ -58,4 +67,65 @@ class Bi::System
     @@asset_paths.unshift path
   end
 
+  #
+  # archive support
+  #
+
+  def self._find_file_(filename)
+    @@asset_paths.each{|asset_path|
+      path = File.join(asset_path,filename)
+      if @archive.include? path
+        file_start = @archive.at path
+        file_size = @archive.size path
+        if self.debug
+          puts "#{path} load from #{@archive.archive_name} at #{file_start}, size #{file_size}"
+        end
+        return @archive.archive_name, file_start, file_size
+      elsif File.exist? path
+        return path
+      end
+    }
+    return nil
+  end
+
+  def self.read_image(filename)
+    f = _find_file_(filename)
+    if f.is_a? String
+      return SDL2::Video::Surface::load f
+    elsif f.is_a? Array
+      return SDL2::Video::Surface::load_partial(*f)
+    end
+    raise "#{filename} not exist."
+  end
+
+  def self.read_sound(filename)
+    f = _find_file_(filename)
+    if f.is_a? String
+      return SDL2::Mixer::Chunk.new f
+    elsif f.is_a? Array
+      return SDL2::Mixer::Chunk::load_partial(*f)
+    end
+    raise "#{filename} not exist."
+  end
+
+  def self.read_music(filename)
+    f = _find_file_(filename)
+    if f.is_a? String
+      return SDL2::Mixer::Music.new f
+    elsif f.is_a? Array
+      return SDL2::Mixer::Music::load_partial(*f)
+    end
+    raise "#{filename} not exist."
+  end
+
+  def self.read_ttf(filename,fontsize)
+    f = _find_file_(filename)
+    if f.is_a? String
+      return SDL2::TTF::Font.new f, fontsize
+    elsif f.is_a? Array
+      p f
+      return SDL2::TTF::Font::load_partial(*f, fontsize)
+    end
+    raise "#{filename} not exist."
+  end
 end

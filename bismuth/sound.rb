@@ -8,7 +8,7 @@ class Bi::Music
 
   def self.play(filename)
     unless @@music_cache[filename]
-      @@music_cache[filename] = SDL2::Mixer::Music.new Bi::System.asset(filename)
+      @@music_cache[filename] = Bi::System::read_music filename
     end
     return if @@playing == filename
     @@playing = filename
@@ -16,7 +16,7 @@ class Bi::Music
     if SDL2::Mixer::music_playing?
       SDL2::Mixer::halt_music
     end
-    music.play -1
+    music.play(-1)
   end
 
   def self.stop
@@ -54,13 +54,7 @@ class Bi::Sound
     @filename = filename
     @sound = @@sound_cache[filename]
     unless @sound
-      if Bi::Archive.instance.include? filename
-        file_start = Bi::Archive.instance.at filename
-        file_size = Bi::Archive.instance.size filename
-        @sound = SDL2::Mixer::Chunk::load_partial Bi::Archive.instance.archive_name, file_start, file_size
-      else
-        @sound = SDL2::Mixer::Chunk.new Bi::System.asset(filename)
-      end
+      @sound = Bi::System.read_sound filename
     end
     @channel = -1
   end

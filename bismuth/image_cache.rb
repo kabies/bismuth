@@ -5,17 +5,7 @@ class Bi::ImageCache
     if @@cache[filename]
       return @@cache[filename]
     end
-
-    if Bi::Archive.instance.include? filename
-      file_start = Bi::Archive.instance.at filename
-      file_size = Bi::Archive.instance.size filename
-      puts "#{filename} load from archive. at #{file_start}, size #{file_size}"
-      s = SDL2::Video::Surface::load_partial Bi::Archive.instance.archive_name, file_start, file_size
-    else
-      s = SDL2::Video::Surface::load Bi::System.asset(filename)
-    end
-    @@cache[filename] = s
-    s
+    @@cache[filename] = Bi::System.read_image filename
   end
 end
 
@@ -33,7 +23,9 @@ class Bi::TextureCache
 
     s = Bi::ImageCache::load filename
     unless s
-      puts "#{__FILE__} ImageCache not found #{filename}"
+      if Bi::System.debug
+        puts "Bi::TextureCache: #{filename} not found"
+      end
       return nil
     end
 
