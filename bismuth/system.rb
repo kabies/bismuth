@@ -88,6 +88,16 @@ class Bi::System
     return nil
   end
 
+  def self.read_file(filename)
+    f = _find_file_(filename)
+    if f.is_a? String
+      return File.read(f)
+    elsif f.is_a? Array
+      return @archive.read(f[1],f[2])
+    end
+    raise "#{filename} not exist."
+  end
+
   def self.read_image(filename)
     f = _find_file_(filename)
     if f.is_a? String
@@ -123,9 +133,9 @@ class Bi::System
     if f.is_a? String
       return SDL2::TTF::Font.new f, fontsize
     elsif f.is_a? Array
-      p f
       return SDL2::TTF::Font::load_partial(*f, fontsize)
     end
     raise "#{filename} not exist."
   end
+
 end

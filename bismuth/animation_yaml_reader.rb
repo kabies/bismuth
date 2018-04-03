@@ -2,8 +2,7 @@ class Bi::AnimationYAMLReader
   attr_reader :default, :animations
 
   def initialize(file,color={hitbox:[0,0,0,0],hurtbox:[0,0,0,0]})
-    filepath = Bi::System.asset file
-    @data = YAML.load File.read filepath
+    @data = YAML.load Bi::System.read_file file
     @default_sprite_name = @data['default']
     @default = Bi::Sprite.new @default_sprite_name
     @color = color
