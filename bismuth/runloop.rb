@@ -123,6 +123,7 @@ class Bi::RunLoop
   end
 
   def rendering
+    Bi::Window.renderer.draw_count = 0
     Bi::Window.renderer.set_draw_color( 0,0,0,0 )
     Bi::Window.renderer.clear
 
@@ -206,8 +207,6 @@ class Bi::RunLoop
         previous_update = now
         fps_count = 0
       end
-
-      Bi::Window.renderer.draw_count = 0
 
       SDL2::delay wait_msec
     end
