@@ -40,9 +40,9 @@ class Bi::Action::Animate < Bi::Action::Base
     super rate
   end
 
-  def initialize(frames,interval)
+  def initialize(frames,interval,&callback)
     @total_unit = frames.inject(0){|sum,i|sum+i.unit}.to_i
-    super( @total_unit * interval )
+    super( @total_unit * interval, &callback )
     @interval = interval
     @frames = frames
     @timetable = []

@@ -24,8 +24,8 @@ require 'bismuth/action/sequence'
 
 module Bi::Action
 
-  def self.animate(frames,interval)
-    Bi::Action::Animate.new(frames,interval)
+  def self.animate(frames,interval,&callback)
+    Bi::Action::Animate.new(frames,interval,&callback)
   end
 
   def self.remove(&callback)
