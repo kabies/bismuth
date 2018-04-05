@@ -53,16 +53,6 @@ class Bi::System
     SDL2::Mixer::open 44100, SDL2::Mixer::MIX_DEFAULT_FORMAT, 2, 1024
   end
 
-  def self.asset(name)
-    @@asset_paths.each{|path|
-      f = File.join(path,name)
-      return f if @archive.include? f
-      return f if File.exist?(f)
-    }
-    # asset not found...
-    raise "asset #{name} not found"
-  end
-
   def self.add_asset_path(path)
     @@asset_paths.unshift path
   end
@@ -74,15 +64,18 @@ class Bi::System
   def self._find_file_(filename)
     @@asset_paths.each{|asset_path|
       path = File.join(asset_path,filename)
-      if @archive.include? path
+      if File.exist? path
+        if self.debug
+          puts "#{path} load from directory."
+        end
+        return path
+      elsif @archive.include? path
         file_start = @archive.at path
         file_size = @archive.size path
         if self.debug
           puts "#{path} load from #{@archive.archive_name} at #{file_start}, size #{file_size}"
         end
         return @archive.archive_name, file_start, file_size
-      elsif File.exist? path
-        return path
       end
     }
     return nil

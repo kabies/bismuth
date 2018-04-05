@@ -15,12 +15,11 @@ class Bi::TextSprite < Bi::Node
   #   color: [r,g,b,a]
   def initialize(text, opts={})
     super()
-    @font = opts[:font] || Bi::TextSprite.default_font
+    @fontname = opts[:font] || Bi::TextSprite.default_font
     @size = opts[:size] || Bi::TextSprite.default_size
     @r,@g,@b,@a = opts[:color] || Bi::TextSprite.default_color
     @a = 0xFF unless @a
-    @font_path = Bi::System.asset @font
-    @font_file = Bi::FontCache.load @font, @size
+    @font = Bi::FontCache.load @fontname, @size
     set_text(text)
   end
 
@@ -33,7 +32,7 @@ class Bi::TextSprite < Bi::Node
     begin
       @surface.free if @surface
       # opaque white
-      @surface = @font_file.render_UTF8_blended(@text, 0xFF,0xFF,0xFF,0xFF )
+      @surface = @font.render_UTF8_blended(@text, 0xFF,0xFF,0xFF,0xFF )
     rescue => e
       @surface = nil
       self.w = 0
