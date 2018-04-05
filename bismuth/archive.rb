@@ -16,7 +16,7 @@ class Bi::Archive
     end
 
     @archive_name = filename
-    File.open(@archive_name, "r") do |archive|
+    File.open(@archive_name, "rb") do |archive|
       four_cc = archive.sysread(4)
       version = archive.sysread(4).unpack("V").first
 
