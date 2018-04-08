@@ -9,9 +9,8 @@ class Bi::CanvasSprite < Bi::Node
     @src_rect = SDL2::Rect.new(0,0,w,h)
     texture_format = SDL2::Pixels::SDL_PIXELFORMAT_RGBA8888
     texture_access = SDL2::Video::Texture::SDL_TEXTUREACCESS_TARGET
-    @texture = SDL2::Video::Texture.new Window.renderer, texture_format, texture_access, w, h
-    @r,@g,@b = 0xff,0xff,0xff
-    @a = 0xFF
+    @texture = SDL2::Video::Texture.new Bi::Window.renderer, texture_format, texture_access, w.to_i, h.to_i
+    self.set_color 0xff,0xff,0xff,0xFF
   end
 
   def flipped?
@@ -19,17 +18,17 @@ class Bi::CanvasSprite < Bi::Node
   end
 
   def fill_rect(x,y,w,h,r,g,b,a)
-    Window.renderer.target = @texture
-    Window.renderer.set_draw_color r,g,b,a
-    Window.renderer.fill_rect SDL2::Rect.new(x,y,w,h)
-    Window.renderer.target = nil
+    Bi::Window.renderer.target = @texture
+    Bi::Window.renderer.set_draw_color r,g,b,a
+    Bi::Window.renderer.fill_rect SDL2::Rect.new(x,y,w,h)
+    Bi::Window.renderer.target = nil
   end
 
   def draw_rect(x,y,w,h,r,g,b,a)
-    Window.renderer.target = @texture
-    Window.renderer.set_draw_color r,g,b,a
-    Window.renderer.draw_rect SDL2::Rect.new(x,y,w,h)
-    Window.renderer.target = nil
+    Bi::Window.renderer.target = @texture
+    Bi::Window.renderer.set_draw_color r,g,b,a
+    Bi::Window.renderer.draw_rect SDL2::Rect.new(x,y,w,h)
+    Bi::Window.renderer.target = nil
   end
 
 end
